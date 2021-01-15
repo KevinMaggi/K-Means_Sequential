@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -5,11 +6,11 @@ import java.util.HashSet;
  * Represents a set of points all belonging the same domain
  */
 public class SetOfPoints<T extends Point> {
-    protected final HashSet<T> points;
+    protected final ArrayList<T> points;
     private final Domain domain;
 
     public SetOfPoints(Domain domain) {
-        this.points = new HashSet<T>();
+        this.points = new ArrayList<T>();
         this.domain = domain;
     }
 
@@ -17,8 +18,8 @@ public class SetOfPoints<T extends Point> {
         return domain;
     }
 
-    public HashSet<T> getPoints() {
-        return new HashSet<T>(points);
+    public ArrayList<T> getPoints() {
+        return new ArrayList<T>(points);
     }
 
     /**
