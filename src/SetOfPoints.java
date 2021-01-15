@@ -1,16 +1,15 @@
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
+import java.util.HashSet;
 
 /**
  * Represents a set of points all belonging the same domain
  */
 public class SetOfPoints<T extends Point> {
-    protected final Set<T> points;
+    protected final HashSet<T> points;
     private final Domain domain;
 
     public SetOfPoints(Domain domain) {
-        this.points = Collections.emptySet();
+        this.points = new HashSet<T>();
         this.domain = domain;
     }
 
@@ -18,8 +17,8 @@ public class SetOfPoints<T extends Point> {
         return domain;
     }
 
-    public Set<T> getPoints() {
-        return Set.copyOf(points);
+    public HashSet<T> getPoints() {
+        return new HashSet<T>(points);
     }
 
     /**

@@ -6,7 +6,7 @@ import static java.lang.Math.sqrt;
 /**
  * Represents a point in Rn
  *
- * It's an immutable class
+ * It's an "immutable" class
  */
 public class Point {
     private final float[] coordinates;
