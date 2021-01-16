@@ -1,6 +1,6 @@
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 
 /**
  * Represents a set of points all belonging the same domain
@@ -49,5 +49,21 @@ public class SetOfPoints<T extends Point> {
         return result;
     }
 
+    /**
+     * Gets the size of the set
+     * @return size
+     */
+    public int size() {
+        return points.size();
+    }
 
+    /**
+     * Gets the set of points as array
+     * @return array of generic points
+     */
+    public T[] toArray() {
+        @SuppressWarnings("unchecked")
+        T[] array = (T[]) Array.newInstance(Point.class, points.size());
+        return points.toArray(array);
+    }
 }
