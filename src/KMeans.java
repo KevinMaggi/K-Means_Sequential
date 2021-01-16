@@ -2,19 +2,32 @@ import java.util.*;
 
 import static java.lang.Math.abs;
 
+/**
+ * For k-Means clusterization
+ * @param <T> subclass of Point
+ */
 public final class KMeans<T extends Point> {
-    public static final int tollerance = 5;
+    /**
+     * Maximum change of a centroid (in every direction) to be considered unchanged
+     */
+    public static final int tolerance = 5;
 
+    /**
+     * Performs the k-means clusterization
+     * @param k number of clusters
+     * @param data points to be clusterized
+     * @return clusters
+     * @throws InputMismatchException if there aren't enough points (<k)
+     */
     public ArrayList<Cluster<T>> clusterize(int k, SetOfPoints<T> data) throws InputMismatchException {
         int numPoints = data.size();
         if (numPoints < k) {
-            throw new InputMismatchException("Points are not enough for this k.");
+            throw new InputMismatchException("Not enough points for this k (k=" + Integer.toString(k) + ")");
         }
         T[] points = data.toArray();
 
-        Point[] centroids = getInitialCentroids(k, data.getPoints());
-        int[] clusterization = new int[numPoints];
-
+        Point[] centroids = initialCentroids(k, data.getPoints());
+        Integer[] clusterization = new Integer[numPoints];
         boolean stop = false;
 
         while (!stop) {
@@ -35,18 +48,24 @@ public final class KMeans<T extends Point> {
         for (int i = 0; i < points.length; i++) {
             try {
                 clusters.get(clusterization[i]).add(points[i]);
-            } catch (Exception ignore) { }
+            } catch (InputMismatchException ignore) { }
         }
 
         return clusters;
     }
 
+    /**
+     * Checks the stop condition based on the unchange (under a certain tolerance) of centroids position
+     * @param oldCentroids old centroids
+     * @param newCentroids new centroids
+     * @return true if have to stop
+     */
     private boolean checkStop(Point[] oldCentroids, Point[] newCentroids) {
         for (int k = 0; k < oldCentroids.length; k++) {
             float[] oldCentroid = oldCentroids[k].getCoordinates();
             float[] newCentroid = newCentroids[k].getCoordinates();
             for (int i = 0; i < oldCentroid.length; i++) {
-                if (abs(oldCentroid[i] - newCentroid[i]) > KMeans.tollerance) {
+                if (abs(oldCentroid[i] - newCentroid[i]) > KMeans.tolerance) {
                     return false;
                 }
             }
@@ -54,97 +73,123 @@ public final class KMeans<T extends Point> {
         return true;
     }
 
-    private void updateClusters(Point[] centroids, Point[] points, int[] clusters) {
+    /**
+     * Assigns every points to a cluster. It returns the clusterization in the third parameter
+     * @param centroids centroids of clusters
+     * @param points points to be assigned
+     * @param clusterization clusterization
+     */
+    private void updateClusters(Point[] centroids, Point[] points, Integer[] clusterization) {
         for (int p = 0; p < points.length; p++) {
             try {
-                float minDistance = Point.getEuclideanDistance(centroids[0], points[p]);
-                int nearestCentroid = 0;
-                for (int c = 1; c < clusters.length; c++) {
+                float minDistance = Float.POSITIVE_INFINITY;
+                Integer nearestCentroid = null;
+
+                for (int c = 0; c < centroids.length; c++) {
                     float distance = Point.getEuclideanDistance(centroids[c], points[p]);
                     if (distance < minDistance) {
                         minDistance = distance;
                         nearestCentroid = c;
                     }
                 }
-                clusters[p] = nearestCentroid;
-            } catch (Exception ignore) { }
+                clusterization[p] = nearestCentroid;
+
+            } catch (InputMismatchException ignore) { }
         }
     }
 
-    private Point[] newCentroids(Point[] points, int[] clusters, int numberOfClusters) {
-        int numberOfPoints = points.length;
-        int dimensionOfSpace = points[0].getDimension();
-        float[][] sum = new float[numberOfClusters][dimensionOfSpace];
-        float[] clusterDimension = new float[numberOfClusters];
+    /**
+     * Calculates the new centroids based on the updated clusterization
+     * @param points points
+     * @param clusterization clusterization
+     * @param k number of clusters
+     * @return new centroids
+     */
+    private Point[] newCentroids(Point[] points, Integer[] clusterization, int k) {
+        int dimension = points[0].getDimension();
+        float[][] sum = new float[k][dimension];
+        int[] clustersSize = new int[k];
         try {
-            for (int i = 0; i < numberOfPoints; i++) {
-                for (int j = 0; j < dimensionOfSpace; j++) {
-                    sum[clusters[i]][j] += points[i].getCoordinate(j+1);
+            for (int i = 0; i < points.length; i++) {
+                for (int j = 0; j < dimension; j++) {
+                    sum[clusterization[i]][j] += points[i].getCoordinate(j+1);
                 }
-                clusterDimension[clusters[i]]++;
+                clustersSize[clusterization[i]]++;
             }
-        } catch (Exception ignore) { }
+        } catch (IndexOutOfBoundsException ignore) { }
 
-        Point[] centroids = new Point[numberOfClusters];
-        for (int k = 0; k < numberOfClusters; k++) {
-            float[] coordinate = new float[dimensionOfSpace];
-            for (int j = 0; j < dimensionOfSpace; j++) {
-                coordinate[j] = sum[k][j]/clusterDimension[k];
+        Point[] centroids = new Point[k];
+        for (int w = 0; w < k; w++) {
+            float[] coordinate = new float[dimension];
+            for (int j = 0; j < dimension; j++) {
+                coordinate[j] = sum[w][j]/clustersSize[w];
             }
-            centroids[k] = new Point(coordinate);
+            centroids[w] = new Point(coordinate);
         }
 
         return centroids;
     }
 
-    private Point[] getInitialCentroids(int k, ArrayList<T> points) throws InputMismatchException {
+    /**
+     * Determines the initial centroids by picking the first point in the list and then picking iteratively
+     * the point that maximize the minimum distance from previous centroids
+     * @param k number of centroids
+     * @param points points
+     * @return centroids
+     */
+    private Point[] initialCentroids(int k, ArrayList<T> points) {
         int numPoints = points.size();
-
         if (numPoints == k) {
-            return points.toArray(new Point[k]);
-        } else {
-            // Distances table
-            float[][] distances = new float[numPoints][numPoints];
-            for (int i = 0; i < numPoints; i++) {
-                for (int j = 0; j < i; j++) {
-                    try {
-                        float distance = Point.getEuclideanDistance(points.get(i), points.get(j));
-                        distances[i][j] = distance;
-                        distances[j][i] = distance;
-                    } catch (Exception ignored) {}
-                }
+            Point[] centroids = new Point[k];
+            for (int i = 0; i < k; i++) {
+                centroids[i] = new Point(points.get(i));
             }
 
-            Point[] myCentroids = new Point[k];
-            int[] pointIndexes = new int[k];
-            //int firstIndex = (int) Math.floor(Math.random() * (numPoints-1));
-            int firstIndex = 0;
-            myCentroids[0] = points.get(firstIndex);
-            pointIndexes[0] = firstIndex;
-
-            for (int i = 1; i < k; i++) {
-                float maxMinDistance = 0;
-                int newCentroidIndex = 0;
-
-                for (int indexPoint = 0; indexPoint < numPoints; indexPoint++) {
-                    float minDistance = distances[indexPoint][firstIndex];
-                    for (int indexCentroid : pointIndexes) {
-                        float distance = distances[indexPoint][indexCentroid];
-                        if (distance < minDistance) {
-                            minDistance = distance;
-                        }
-                    }
-
-                    if (minDistance > maxMinDistance) {
-                        maxMinDistance = minDistance;
-                        newCentroidIndex = indexPoint;
-                    }
-                }
-                myCentroids[i] = new Point(points.get(newCentroidIndex));
-                pointIndexes[i] = newCentroidIndex;
-            }
-
-            return myCentroids;
+            return centroids;
         }
+
+        // build distance table
+        float[][] distanceTable = new float[numPoints][numPoints];
+        for (int i = 0; i < numPoints; i++) {
+            for (int j = 0; j < i; j++) {
+                try {
+                    float distance = Point.getEuclideanDistance(points.get(i), points.get(j));
+                    distanceTable[i][j] = distance;
+                    distanceTable[j][i] = distance;
+                } catch (InputMismatchException ignore) { }
+            }
+        }
+
+        Point[] centroids = new Point[k];
+        int[] pointIndexes = new int[k];
+        // Random r = new Random();
+        // int firstIndex = r.nextInt(numPoints);
+        int firstIndex = 0;
+        centroids[0] = points.get(firstIndex);
+        pointIndexes[0] = firstIndex;
+
+        for (int i = 1; i < k; i++) {
+            float maxMinDistance = 0;
+            int newCentroidIndex = 0;
+
+            for (int p = 0; p < numPoints; p++) {
+                float minDistance = distanceTable[p][firstIndex];
+                for (int indexCentroid : pointIndexes) {
+                    float distance = distanceTable[p][indexCentroid];
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                    }
+                }
+
+                if (minDistance > maxMinDistance) {
+                    maxMinDistance = minDistance;
+                    newCentroidIndex = p;
+                }
+            }
+            centroids[i] = new Point(points.get(newCentroidIndex));
+            pointIndexes[i] = newCentroidIndex;
+        }
+
+        return centroids;
     }
 }

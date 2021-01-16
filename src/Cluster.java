@@ -1,3 +1,5 @@
+import java.util.InputMismatchException;
+
 /**
  * Represents a cluster of points
  */
@@ -11,25 +13,19 @@ public class Cluster<T extends Point> extends SetOfPoints<T> {
      * @return centroid
      */
     public Point getCenter() {
-        float[] coordinates = new float[getDomain().getDimension()];
+        int dimension = getDomain().getDimension();
+        float[] coordinates = new float[dimension];
 
-        for (T p : this.points) {
-            for (int i = 0; i < getDomain().getDimension(); i++) {
+        for (int i = 0; i < dimension; i++) {
+            for (T p : this.points) {
                 try {
                     coordinates[i] += p.getCoordinate(i + 1);
-                } catch (Exception ignored) {}
+                } catch (ArrayIndexOutOfBoundsException ignored) { }
             }
-        }
-
-        for (int i = 0; i < getDomain().getDimension(); i++) {
             coordinates[i] /= this.points.size();
         }
 
-        Point centroid;
-        try {
-            centroid = new Point(coordinates);
-            return centroid;
-        } catch (Exception ignore) { return null; }
+        return new Point(coordinates);
     }
 
     /**
@@ -48,7 +44,7 @@ public class Cluster<T extends Point> extends SetOfPoints<T> {
                     if (distance > max) {
                         max = distance;
                     }
-                } catch (Exception ignored) {}
+                } catch (InputMismatchException ignored) {}
             }
         }
         return max;

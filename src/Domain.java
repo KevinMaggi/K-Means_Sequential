@@ -52,9 +52,7 @@ public final class Domain {
                     float p_i = p.getCoordinate(i+1);
                     if (p_i < lowerBounds[i] || p_i > upperBounds[i])
                         return false;
-                } catch (Exception e) {
-                    return false;
-                }
+                } catch (IndexOutOfBoundsException ignore) { }
             }
             return true;
         }

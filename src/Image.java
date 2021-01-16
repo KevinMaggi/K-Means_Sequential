@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.InputMismatchException;
 
 /**
  * Contains all operation that can be applied on an image
@@ -34,9 +35,7 @@ public class Image {
                     data.add(p);
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (InputMismatchException ignore) { }
 
         return data;
     }
@@ -58,9 +57,7 @@ public class Image {
                 for (RGBPixel p : c.getPoints()) {
                     img.setRGB(p.getX(), p.getY(), color.getRGB());
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            } catch (IndexOutOfBoundsException ignore) { }
         }
 
         ImageIO.write(img, "png", new File(path));

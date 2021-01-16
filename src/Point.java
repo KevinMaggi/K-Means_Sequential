@@ -1,4 +1,5 @@
 import java.util.Arrays;
+import java.util.InputMismatchException;
 
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
@@ -28,14 +29,14 @@ public class Point {
     }
 
     /**
-     * Get the i-th coordinate of the point
+     * Get the i-th coordinate of the point (1-indexed)
      * @param i coordinate to get
      * @return value of i-th coordinate
-     * @throws Exception if the coordinate is <1 or >dimension
+     * @throws IndexOutOfBoundsException if the coordinate is <1 or >dimension
      */
-    public float getCoordinate(int i) throws Exception {
+    public float getCoordinate(int i) throws IndexOutOfBoundsException {
         if (i > coordinates.length || i < 1) {
-            throw new Exception("Invalid dimension");
+            throw new IndexOutOfBoundsException("Invalid dimension");
         }
 
         return this.coordinates[i-1];
@@ -54,16 +55,16 @@ public class Point {
      * @param p1 first point
      * @param p2 second point
      * @return distance
-     * @throws Exception if the points has incompatible dimensions
+     * @throws InputMismatchException if the points has incompatible dimensions
      */
-    public static float getEuclideanDistance(Point p1, Point p2) throws Exception {
+    public static float getEuclideanDistance(Point p1, Point p2) throws InputMismatchException {
         if (p1.getDimension() != p2.getDimension()) {
-            throw new Exception("Incompatible point (due to its dimension)");
+            throw new InputMismatchException("Incompatible point (due to its dimension)");
         }
 
         float squareSum = 0;
         for (int i = 0; i < p1.getDimension(); i++) {
-            squareSum += pow(p1.coordinates[i] - p2.getCoordinate(i+1), 2);
+            squareSum += pow(p1.getCoordinate(i+1) - p2.getCoordinate(i+1), 2);
         }
         return (float) sqrt(squareSum);
     }

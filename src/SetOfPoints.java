@@ -1,6 +1,7 @@
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.InputMismatchException;
 
 /**
  * Represents a set of points all belonging the same domain
@@ -26,22 +27,22 @@ public class SetOfPoints<T extends Point> {
      * Add a point to the set
      * @param point point to add
      * @return true if success, false otherwise
-     * @throws Exception if the point doesn't belong to the domain
+     * @throws InputMismatchException if the point doesn't belong to the domain
      */
-    public boolean add(T point) throws Exception {
+    public boolean add(T point) throws InputMismatchException {
         if (domain.contains(point))
             return points.add(point);
         else
-            throw new Exception("Incompatible point");
+            throw new InputMismatchException("Incompatible point");
     }
 
     /**
      * Add some point to the set
      * @param points points to add
      * @return true if success, false otherwise
-     * @throws Exception if some point doesn't belong to the domain
+     * @throws InputMismatchException if some point doesn't belong to the domain
      */
-    public boolean addAll(Collection<T> points) throws Exception {
+    public boolean addAll(Collection<T> points) throws InputMismatchException {
         boolean result = true;
         for (T point : points) {
             result &= this.add(point);
