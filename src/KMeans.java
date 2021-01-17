@@ -165,18 +165,6 @@ public final class KMeans<T extends Point> {
             return centroids;
         }
 
-        // build distance table
-        float[][] distanceTable = new float[numPoints][numPoints];
-        for (int i = 0; i < numPoints; i++) {
-            for (int j = 0; j < i; j++) {
-                try {
-                    float distance = Point.getEuclideanDistance(points.get(i), points.get(j));
-                    distanceTable[i][j] = distance;
-                    distanceTable[j][i] = distance;
-                } catch (InputMismatchException ignore) { }
-            }
-        }
-
         Point[] centroids = new Point[k];
         int[] pointIndexes = new int[k];
         // Random r = new Random();
@@ -190,18 +178,19 @@ public final class KMeans<T extends Point> {
             int newCentroidIndex = 0;
 
             for (int p = 0; p < numPoints; p++) {
-                float minDistance = distanceTable[p][firstIndex];
-                for (int indexCentroid : pointIndexes) {
-                    float distance = distanceTable[p][indexCentroid];
-                    if (distance < minDistance) {
-                        minDistance = distance;
+                try {
+                    float minDistance = Point.getEuclideanDistance(points.get(p), points.get(firstIndex));
+                    for (int indexCentroid : pointIndexes) {
+                        float distance = Point.getEuclideanDistance(points.get(p), points.get(indexCentroid));
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                        }
                     }
-                }
-
-                if (minDistance > maxMinDistance) {
-                    maxMinDistance = minDistance;
-                    newCentroidIndex = p;
-                }
+                    if (minDistance > maxMinDistance) {
+                        maxMinDistance = minDistance;
+                        newCentroidIndex = p;
+                    }
+                } catch (InputMismatchException ignore) { }
             }
             centroids[i] = new Point(points.get(newCentroidIndex));
             pointIndexes[i] = newCentroidIndex;
