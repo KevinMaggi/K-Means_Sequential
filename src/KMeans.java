@@ -22,7 +22,12 @@ public final class KMeans<T extends Point> {
     public ArrayList<Cluster<T>> clusterize(int k, SetOfPoints<T> data) throws InputMismatchException {
         int numPoints = data.size();
         if (numPoints < k) {
-            throw new InputMismatchException("Not enough points for this k (k=" + Integer.toString(k) + ")");
+            throw new InputMismatchException("Not enough points for this k (k=" + k + ")");
+        }
+        if (k == 1) {
+            ArrayList<Cluster<T>> clusters = new ArrayList<>(k);
+            clusters.add(new Cluster<T>(data));
+            return clusters;
         }
         T[] points = data.toArray();
 
@@ -179,7 +184,7 @@ public final class KMeans<T extends Point> {
 
             for (int p = 0; p < numPoints; p++) {
                 try {
-                    float minDistance = Point.getEuclideanDistance(points.get(p), points.get(firstIndex));
+                    float minDistance = Float.POSITIVE_INFINITY;
                     for (int indexCentroid : pointIndexes) {
                         float distance = Point.getEuclideanDistance(points.get(p), points.get(indexCentroid));
                         if (distance < minDistance) {

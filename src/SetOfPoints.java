@@ -15,6 +15,15 @@ public class SetOfPoints<T extends Point> {
         this.domain = domain;
     }
 
+    public SetOfPoints(Domain domain, Collection<T> points) {
+        this.domain = domain;
+        this.points = new ArrayList<>(points);
+    }
+
+    public SetOfPoints(SetOfPoints<T> sop) {
+        this(sop.getDomain(), sop.getPoints());
+    }
+
     public Domain getDomain() {
         return domain;
     }

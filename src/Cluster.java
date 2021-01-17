@@ -1,3 +1,4 @@
+import java.util.Collection;
 import java.util.InputMismatchException;
 
 /**
@@ -6,6 +7,14 @@ import java.util.InputMismatchException;
 public class Cluster<T extends Point> extends SetOfPoints<T> {
     public Cluster(Domain domain){
         super(domain);
+    }
+
+    public Cluster(Domain domain, Collection<T> points) {
+        super(domain, points);
+    }
+
+    public Cluster(SetOfPoints<T> sop) {    // Also good as copy-constructor
+        super(sop);
     }
 
     /**
