@@ -10,7 +10,7 @@ public final class KMeans<T extends Point> {
     /**
      * Maximum change of a centroid (in every direction) to be considered unchanged
      */
-    public static final int tolerance = 5;
+    public static final float tolerance = 0.005F;
 
     /**
      * Performs the k-means clusterization
@@ -127,6 +127,23 @@ public final class KMeans<T extends Point> {
             centroids[w] = new Point(coordinate);
         }
 
+        return centroids;
+    }
+
+    /**
+     * Determines the initial centroids by picking them randomly
+     * @param k number of centroids
+     * @param points points
+     * @return centroids
+     */
+    private Point[] randomInitialCentroids(int k, ArrayList<T> points) {
+        Point[] centroids = new Point[k];
+        int numPoints = points.size();
+        Random r = new Random();
+        for (int i = 0; i < k; i++) {
+            int index = r.nextInt(numPoints);
+            centroids[i] = new Point(points.get(index));
+        }
         return centroids;
     }
 
