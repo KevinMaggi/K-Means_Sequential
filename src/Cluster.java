@@ -1,19 +1,34 @@
 import java.util.Collection;
-import java.util.InputMismatchException;
 
 /**
  * Represents a cluster of points
  */
 public class Cluster<T extends Point> extends SetOfPoints<T> {
-    public Cluster(Domain domain){
+    /**
+     * Constructor
+     * @param domain domain to which the points belong
+     * @throws NullPointerException if the domain is null
+     */
+    public Cluster(Domain domain) throws NullPointerException {
         super(domain);
     }
 
-    public Cluster(Domain domain, Collection<T> points) {
+    /**
+     * Constructor
+     * @param domain domain to which the points belong
+     * @param points points to collect
+     * @throws NullPointerException if the domain is null
+     */
+    public Cluster(Domain domain, Collection<T> points) throws NullPointerException {
         super(domain, points);
     }
 
-    public Cluster(SetOfPoints<T> sop) {    // Also good as copy-constructor
+    /**
+     * Constructor. As a Cluster IS a SetOfPoints and a Cluster doesn't have additional attributes, it works also as copy constructor
+     * @param sop Set Of Points
+     * @throws NullPointerException if the set of point is null
+     */
+    public Cluster(SetOfPoints<T> sop) throws NullPointerException {
         super(sop);
     }
 
@@ -27,9 +42,8 @@ public class Cluster<T extends Point> extends SetOfPoints<T> {
 
         for (int i = 0; i < dimension; i++) {
             for (T p : this.points) {
-                try {
-                    coordinates[i] += p.getCoordinate(i + 1);
-                } catch (ArrayIndexOutOfBoundsException ignored) { }
+                coordinates[i] += p.getCoordinate(i + 1);
+                    // cannot throws exception because we know the dimension and we respect it
             }
             coordinates[i] /= this.points.size();
         }
@@ -48,12 +62,11 @@ public class Cluster<T extends Point> extends SetOfPoints<T> {
             Point p1 = this.points.get(i);
             for (int j = i+1; j < n; j++) {
                 Point p2 = this.points.get(j);
-                try {
-                    float distance = Point.getEuclideanDistance(p1, p2);
-                    if (distance > max) {
-                        max = distance;
-                    }
-                } catch (InputMismatchException ignored) {}
+                float distance = Point.getEuclideanDistance(p1, p2);
+                    // cannot throws exception because points from a SetOfPoint is secure that have same dimension
+                if (distance > max) {
+                    max = distance;
+                }
             }
         }
         return max;

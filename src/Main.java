@@ -3,16 +3,11 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Main {
     private static final int K_MIN = 1;
-    private static final int K_MAX = 10;
-
+    private static final int K_MAX = 5;
 
     public static void main(String[] args) {
         try {
@@ -20,11 +15,12 @@ public class Main {
             double[] times = new double[K_MAX - K_MIN + 1];
             String filename = "3K";
 
-            for (int k = K_MIN; k <= K_MAX; k++) {
-                BufferedImage img = Image.load("src/image/" + filename + ".jpg");
-                SetOfPoints<RGBPixel> data = Image.pixelize(img);
+            BufferedImage img = Image.load("src/image/" + filename + ".jpg");
+            SetOfPoints<RGBPixel> data = Image.pixelize(img);
 
-                KMeans<RGBPixel> kmeans = new KMeans<>();
+            KMeans<RGBPixel> kmeans = new KMeans<>();
+
+            for (int k = K_MIN; k <= K_MAX; k++) {
                 long startTimeMillis = System.currentTimeMillis();
                 ArrayList<Cluster<RGBPixel>> clusters = kmeans.clusterize(k, data);
                 long endTimeMillis = System.currentTimeMillis();

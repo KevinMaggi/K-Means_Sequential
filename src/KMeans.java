@@ -17,12 +17,17 @@ public final class KMeans<T extends Point> {
      * @param k number of clusters
      * @param data points to be clusterized
      * @return clusters
-     * @throws InputMismatchException if there aren't enough points (<k)
+     * @throws IllegalArgumentException if there aren't enough points (<k)
+     * @throws NullPointerException if input data is null
      */
-    public ArrayList<Cluster<T>> clusterize(int k, SetOfPoints<T> data) throws InputMismatchException {
+    public ArrayList<Cluster<T>> clusterize(int k, final SetOfPoints<T> data) throws IllegalArgumentException, NullPointerException {
+        if(data == null) {
+            throw new NullPointerException("Input data can't be null");
+        }
+
         int numPoints = data.size();
         if (numPoints < k) {
-            throw new InputMismatchException("Not enough points for this k (k=" + k + ")");
+            throw new IllegalArgumentException("Not enough points for this k (k=" + k + ")");
         }
         if (k == 1) {
             ArrayList<Cluster<T>> clusters = new ArrayList<>(k);
@@ -51,9 +56,8 @@ public final class KMeans<T extends Point> {
             clusters.add(j, new Cluster<>(data.getDomain()));
         }
         for (int i = 0; i < points.length; i++) {
-            try {
-                clusters.get(clusterization[i]).add(points[i]);
-            } catch (InputMismatchException ignore) { }
+            clusters.get(clusterization[i]).add(points[i]);
+                // cannot throws exception because the domain of all clusters is the same from which the data belongs to
         }
 
         return clusters;
@@ -65,7 +69,7 @@ public final class KMeans<T extends Point> {
      * @param newCentroids new centroids
      * @return true if have to stop
      */
-    private boolean checkStop(Point[] oldCentroids, Point[] newCentroids) {
+    private boolean checkStop(final Point[] oldCentroids, final Point[] newCentroids) {
         for (int k = 0; k < oldCentroids.length; k++) {
             float[] oldCentroid = oldCentroids[k].getCoordinates();
             float[] newCentroid = newCentroids[k].getCoordinates();
@@ -84,22 +88,20 @@ public final class KMeans<T extends Point> {
      * @param points points to be assigned
      * @param clusterization clusterization
      */
-    private void updateClusters(Point[] centroids, Point[] points, Integer[] clusterization) {
+    private void updateClusters(final Point[] centroids, final Point[] points, Integer[] clusterization) {
         for (int p = 0; p < points.length; p++) {
-            try {
-                float minDistance = Float.POSITIVE_INFINITY;
-                Integer nearestCentroid = null;
+            float minDistance = Float.POSITIVE_INFINITY;
+            Integer nearestCentroid = null;
 
-                for (int c = 0; c < centroids.length; c++) {
-                    float distance = Point.getEuclideanDistance(centroids[c], points[p]);
-                    if (distance < minDistance) {
-                        minDistance = distance;
-                        nearestCentroid = c;
-                    }
+            for (int c = 0; c < centroids.length; c++) {
+                float distance = Point.getEuclideanDistance(centroids[c], points[p]);
+                    // cannot throws exception because we ensure that centroids and points wer all not null and of the same dimension
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearestCentroid = c;
                 }
-                clusterization[p] = nearestCentroid;
-
-            } catch (InputMismatchException ignore) { }
+            }
+            clusterization[p] = nearestCentroid;
         }
     }
 
@@ -110,18 +112,17 @@ public final class KMeans<T extends Point> {
      * @param k number of clusters
      * @return new centroids
      */
-    private Point[] newCentroids(Point[] points, Integer[] clusterization, int k) {
+    private Point[] newCentroids(final Point[] points, final Integer[] clusterization, int k) {
         int dimension = points[0].getDimension();
         float[][] sum = new float[k][dimension];
         int[] clustersSize = new int[k];
-        try {
-            for (int i = 0; i < points.length; i++) {
-                for (int j = 0; j < dimension; j++) {
-                    sum[clusterization[i]][j] += points[i].getCoordinate(j+1);
-                }
-                clustersSize[clusterization[i]]++;
+        for (int i = 0; i < points.length; i++) {
+            for (int j = 0; j < dimension; j++) {
+                sum[clusterization[i]][j] += points[i].getCoordinate(j+1);
+                    // cannot throws exception because all point has the same dimension and we respect it
             }
-        } catch (IndexOutOfBoundsException ignore) { }
+            clustersSize[clusterization[i]]++;
+        }
 
         Point[] centroids = new Point[k];
         for (int w = 0; w < k; w++) {
@@ -141,7 +142,7 @@ public final class KMeans<T extends Point> {
      * @param points points
      * @return centroids
      */
-    private Point[] randomInitialCentroids(int k, ArrayList<T> points) {
+    private Point[] randomInitialCentroids(int k, final ArrayList<T> points) {
         Point[] centroids = new Point[k];
         int numPoints = points.size();
         Random r = new Random();
@@ -159,7 +160,7 @@ public final class KMeans<T extends Point> {
      * @param points points
      * @return centroids
      */
-    private Point[] initialCentroids(int k, ArrayList<T> points) {
+    private Point[] initialCentroids(int k, final ArrayList<T> points) {
         int numPoints = points.size();
         if (numPoints == k) {
             Point[] centroids = new Point[k];
@@ -183,19 +184,18 @@ public final class KMeans<T extends Point> {
             int newCentroidIndex = 0;
 
             for (int p = 0; p < numPoints; p++) {
-                try {
-                    float minDistance = Float.POSITIVE_INFINITY;
-                    for (int indexCentroid : pointIndexes) {
-                        float distance = Point.getEuclideanDistance(points.get(p), points.get(indexCentroid));
-                        if (distance < minDistance) {
-                            minDistance = distance;
-                        }
+                float minDistance = Float.POSITIVE_INFINITY;
+                for (int indexCentroid : pointIndexes) {
+                    float distance = Point.getEuclideanDistance(points.get(p), points.get(indexCentroid));
+                        // cannot throws exception because SetOfPoint ensure that all the points are not null and of the same dimension
+                    if (distance < minDistance) {
+                        minDistance = distance;
                     }
-                    if (minDistance > maxMinDistance) {
-                        maxMinDistance = minDistance;
-                        newCentroidIndex = p;
-                    }
-                } catch (InputMismatchException ignore) { }
+                }
+                if (minDistance > maxMinDistance) {
+                    maxMinDistance = minDistance;
+                    newCentroidIndex = p;
+                }
             }
             centroids[i] = new Point(points.get(newCentroidIndex));
             pointIndexes[i] = newCentroidIndex;
