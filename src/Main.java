@@ -6,14 +6,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Main {
-    private static final int K_MIN = 1;
-    private static final int K_MAX = 5;
+    private static final int K_MIN = 3;
+    private static final int K_MAX = 3;
 
     public static void main(String[] args) {
         try {
             int[] keys = new int[K_MAX - K_MIN + 1];
             double[] times = new double[K_MAX - K_MIN + 1];
-            String filename = "3K";
+            String filename = "4K";
 
             BufferedImage img = Image.load("src/image/" + filename + ".jpg");
             SetOfPoints<RGBPixel> data = Image.pixelize(img);
