@@ -2,7 +2,6 @@ import net.jcip.annotations.Immutable;
 
 import java.util.Arrays;
 
-import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
 /**
@@ -78,6 +77,18 @@ public class Point {
      * @throws NullPointerException if one or both the points are null
      */
     public static float getEuclideanDistance(Point p1, Point p2) throws IllegalArgumentException, NullPointerException {
+        return (float) sqrt(getSquaredEuclideanDistance(p1, p2));
+    }
+
+    /**
+     * Calculate the squared euclidean distance between two points
+     * @param p1 first point
+     * @param p2 second point
+     * @return distance
+     * @throws IllegalArgumentException if the points has incompatible dimensions
+     * @throws NullPointerException if one or both the points are null
+     */
+    public static float getSquaredEuclideanDistance(Point p1, Point p2) throws IllegalArgumentException, NullPointerException {
         if (p1 == null || p2 == null) {
             throw new NullPointerException("Points can't be nulls");
         }
@@ -88,8 +99,9 @@ public class Point {
 
         float squareSum = 0;
         for (int i = 0; i < p1.getDimension(); i++) {
-            squareSum += pow(p1.getCoordinate(i+1) - p2.getCoordinate(i+1), 2);
+            float difference = p1.getCoordinate(i+1) - p2.getCoordinate(i+1);
+            squareSum += difference*difference;
         }
-        return (float) sqrt(squareSum);
+        return squareSum;
     }
 }

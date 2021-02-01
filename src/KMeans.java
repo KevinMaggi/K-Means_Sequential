@@ -94,7 +94,7 @@ public final class KMeans<T extends Point> {
             Integer nearestCentroid = null;
 
             for (int c = 0; c < centroids.length; c++) {
-                float distance = Point.getEuclideanDistance(centroids[c], points[p]);
+                float distance = Point.getSquaredEuclideanDistance(centroids[c], points[p]);
                     // cannot throws exception because we ensure that centroids and points wer all not null and of the same dimension
                 if (distance < minDistance) {
                     minDistance = distance;
@@ -184,7 +184,7 @@ public final class KMeans<T extends Point> {
             for (int p = 0; p < numPoints; p++) {
                 float minDistance = Float.POSITIVE_INFINITY;
                 for (int c = 0; c < i; c++) {
-                    float distance = Point.getEuclideanDistance(points.get(p), centroids[c]);
+                    float distance = Point.getSquaredEuclideanDistance(points.get(p), centroids[c]);
                         // cannot throws exception because SetOfPoint ensure that all the points are not null and of the same dimension
                     if (distance < minDistance) {
                         minDistance = distance;
