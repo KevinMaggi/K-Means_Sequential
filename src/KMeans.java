@@ -36,7 +36,7 @@ public final class KMeans<T extends Point> {
         }
         T[] points = data.toArray();
 
-        Point[] centroids = initialCentroids(k, data.getPoints());
+        Point[] centroids = initialCentroids(k, points);
         Integer[] clusterization = new Integer[numPoints];
         boolean stop = false;
 
@@ -160,12 +160,12 @@ public final class KMeans<T extends Point> {
      * @param points points
      * @return centroids
      */
-    private Point[] initialCentroids(int k, final ArrayList<T> points) {
-        int numPoints = points.size();
+    private Point[] initialCentroids(int k, final Point[] points) {
+        int numPoints = points.length;
         if (numPoints == k) {
             Point[] centroids = new Point[k];
             for (int i = 0; i < k; i++) {
-                centroids[i] = new Point(points.get(i));
+                centroids[i] = new Point(points[i]);
             }
 
             return centroids;
@@ -175,7 +175,7 @@ public final class KMeans<T extends Point> {
         // Random r = new Random();
         // int firstCentroidIndex = r.nextInt(numPoints);
         int firstCentroidIndex = 0;
-        centroids[0] = new Point(points.get(firstCentroidIndex));
+        centroids[0] = new Point(points[firstCentroidIndex]);
 
         for (int i = 1; i < k; i++) {
             float maxMinDistance = 0;
@@ -184,7 +184,7 @@ public final class KMeans<T extends Point> {
             for (int p = 0; p < numPoints; p++) {
                 float minDistance = Float.POSITIVE_INFINITY;
                 for (int c = 0; c < i; c++) {
-                    float distance = Point.getSquaredEuclideanDistance(points.get(p), centroids[c]);
+                    float distance = Point.getSquaredEuclideanDistance(points[p], centroids[c]);
                         // cannot throws exception because SetOfPoint ensure that all the points are not null and of the same dimension
                     if (distance < minDistance) {
                         minDistance = distance;
@@ -195,7 +195,7 @@ public final class KMeans<T extends Point> {
                     newCentroidIndex = p;
                 }
             }
-            centroids[i] = new Point(points.get(newCentroidIndex));
+            centroids[i] = new Point(points[newCentroidIndex]);
         }
 
         return centroids;
