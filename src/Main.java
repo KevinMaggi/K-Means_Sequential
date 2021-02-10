@@ -9,20 +9,20 @@ public class Main {
     /**
      * Min value of K to test
      */
-    private static final int K_MIN = 6;
+    private static final int K_MIN = 2;
     /**
      * Max value of K to test
      */
-    private static final int K_MAX = 8;
+    private static final int K_MAX = 20;
     /**
      * Step on values of K
      */
-    private static final int K_STEP = 2;
+    private static final int K_STEP = 6;
 
     /**
      * Image dimension to test: 4K, 5K or 6K
      */
-    private static final String IMAGE_DIMENSION = "4K";
+    private static final String IMAGE_DIMENSION = "6K";
     /**
      * Number of image of each dimension to test (max 3)
      */
@@ -45,6 +45,9 @@ public class Main {
                 for (int imageIndex = 1; imageIndex <= IMAGE_QUANTITY; imageIndex++) {
                     BufferedImage img = Image.load("src/image/" + IMAGE_DIMENSION + "-" + imageIndex + ".jpg");
                     SetOfPoints<RGBPixel> data = Image.pixelize(img);
+                    int width = img.getWidth();
+                    int height = img.getHeight();
+                    img = null;     // to garbage collect previous result and avoid Heap Space Error
 
                     ArrayList<Cluster<RGBPixel>> clusters = null;
                     for (int i = 0; i < REPETITIONS; i++) {
@@ -58,7 +61,7 @@ public class Main {
                         System.out.println("For k = " + k + " on image" + imageIndex + ", computation time is " + (endTimeMillis-startTimeMillis)/1000f + " seconds");
                     }
 
-                    Image.export(clusters, "out/results/" + IMAGE_DIMENSION + "-" + imageIndex + "-quantized" + k + ".png", img.getWidth(), img.getHeight());
+                    Image.export(clusters, "out/results/" + IMAGE_DIMENSION + "-" + imageIndex + "-quantized" + k + ".png", width, height);
                 }
                 float meanTimeSeconds = cumulativeTimesMillis / (1000f * REPETITIONS * IMAGE_QUANTITY);
                 keys[k - K_MIN] = k;
